@@ -1,7 +1,1 @@
-# Kö
-En implementation av ADT:n _Kö_ baserad på en dubbel-länkad lista.
-
-## Minneshantering och utskrift
-
-Det mesta av hur gränsytan används med avseende på minneshantering och
-utskrifter är analogt för hur [listimplementationen](../list/) fungerar.
+This is an assignment from my University. I keep them here so I dont have to deal with local copies. If you are doing this course, don't copy the files. You should learn after all. 
