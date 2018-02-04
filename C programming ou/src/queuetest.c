@@ -240,7 +240,7 @@ void type_test()
 int main(void)
 {
 	printf("Initiating Queue Testing...\n\n");
-	printf("Axiomatic tests:\n\n");
+	printf("***Axiomatic tests:***\n\n");
 
 	printf("AX 1 - Empty test: \n");
 	empty_queue_test();
@@ -258,8 +258,12 @@ int main(void)
 	queue_test_5_and_6();
 
 
-	printf("Limit and type tests:\n\n");
+	printf("**Limit and type tests:***\n\n");
+
+	printf("Testing 10000 values:\n");
 	capacity_test();
+
+	printf("Testing adding different types:\n");
 	type_test();
 
 }
