@@ -177,9 +177,9 @@ void type_test()
 	int *v = malloc(sizeof(*v));
 
 
-	c="t";
-	*d=3.14;
-	*l=12345667;
+	c="Svitri";
+	*d=3.1478;
+	*l=1234567;
 	*b=true;
 	*v=1;
 
@@ -195,6 +195,8 @@ void type_test()
 		exit(EXIT_FAILURE);
 	}
 
+	printf("Queue Front: %s  %lf  %lu  true %d\n", c, *d, *l, *v);
+	q = queue_dequeue(q);
 
 
 	queue_kill(q);
