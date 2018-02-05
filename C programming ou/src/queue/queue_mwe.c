@@ -20,7 +20,7 @@ void print_ints(const void *data)
 	printf("[%d]", *(int*)data);
 }
 
-int main(void) 
+int main(void)
 {
 	// Create the queue.
 	queue *q = queue_empty(free);
@@ -45,7 +45,7 @@ int main(void)
 
 	// Same example, but now keep responsibility for deallocating memory.
 	q=queue_empty(NULL);
-	
+
 	for (int i=1; i<=3; i++) {
 		// Allocate memory for one int.
 		int *v = malloc(sizeof(*v));
@@ -79,5 +79,5 @@ int main(void)
 	}
 	// Finally, destroy the bare queue.
 	queue_kill(q);
-	
+
 }
