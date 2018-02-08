@@ -11,15 +11,26 @@
 * Assignment 2
 
 * File:         queuetest.c
-* Description:  A test program for a list implementation.
+* Description:  A test program for a queue implementation.
+*               Tests are mainly based on the axioms of queues,see below.
+*               Also check if the functions don't modify the data.
 * Author:       Svitri Magnusson
 * CS username:  kv13smn
-* Date:         2018-02-07
+* Date:         2018-02-08
 * Input:        void
 * Output:       console prints
 * Limitations:  Does not test every combination of elements in different order.
+* Run: gcc -std=c99 -Wall -I../include/ queue/queue.c list/list.c -o que queuetest.c
+
+
+Ax 1 Isempty (Empty)
+Ax 2 !(Isempty(Enqueue(v,q)))
+Ax 3 Isempty(q) -> Dequeue(Enqueue(v, q)) = q
+Ax 4 !(Isempty(q)) -> Dequeue (Enqueue(v, q)) = Enqueue(v, Dequeue(q))
+Ax 5 Isempty(q) -> Fron(Enqueue(v,q)) = v
+Ax 6 !(Isempty(q)) -> Front(Enqueue(v, q)) = Front(q)
+
 */
-//Den verifierar att listan bara är tom en gång. Dv.s
 
 
 typedef struct{
@@ -27,14 +38,26 @@ typedef struct{
   char *charField;
 } testStruct;
 
-/******************************/
+
+
+/**
+ * print_ints - Print int values of the queue.
+ * @data: Data to print.
+ *
+ * Returns: Void.
+ */
 
 void print_ints(const void *data)
 {
 	printf("[%d]", *(int*)data);
 }
 
-/******************************/
+/**
+ * add_all_types() - Populates the queue with primitive datatypes.
+ * @q: Queue to populate.
+ *
+ * Returns: Queue pointer with filled datatypes.
+ */
 
 queue *add_all_types(queue *q)
 {
@@ -60,7 +83,12 @@ queue *add_all_types(queue *q)
 	return q;
 }
 
-/******************************/
+/**
+ * empty_queue_test() - Checks if queue_empty works correcetly on empty queue.
+ * @q: Queue to test.
+ *
+ * Returns: void.
+ */
 
 void empty_queue_test()
 {
@@ -76,7 +104,12 @@ void empty_queue_test()
 	printf("PASSED.\n\n");
 }
 
-/******************************/
+/**
+ * empty_enque_test() - Checks if queue_empty works correcetly on non empty queue.
+ * @q: Queue to test.
+ *
+ * Returns: void.
+ */
 
 void empty_enque_test()
 {
@@ -97,7 +130,14 @@ void empty_enque_test()
 
 }
 
-/******************************/
+/**
+ * empty_enque_deque_test() - Function translated to axioms:
+
+ * Ax 3 Isempty(q) -> Dequeue(Enqueue(v, q)) = q
+ * Ax 4 !(Isempty(q)) -> Dequeue (Enqueue(v, q)) = Enqueue(v, Dequeue(q))
+ *
+ * Returns: void
+ */
 
 void empty_enque_deque_test()
 {
@@ -135,7 +175,14 @@ void empty_enque_deque_test()
 	printf("PASSED.\n\n");
 }
 
-/******************************/
+/**
+ * empty_enque_deque_test() - Function translated to axioms:
+ *
+ * Ax 5 Isempty(q) -> Fron(Enqueue(v,q)) = v
+ * Ax 6 !(Isempty(q)) -> Front(Enqueue(v, q)) = Front(q)
+ *
+ * Returns: void
+ */
 
 void queue_front_test()
 {
@@ -176,7 +223,11 @@ void queue_front_test()
 	printf("PASSED.\n\n");
 }
 
-/******************************/
+/**
+ * type_test() - Tests if queue can populate different types of data.
+ *
+ * Returns: void.
+ */
 
 void type_test()
 {
@@ -195,12 +246,15 @@ void type_test()
 
 }
 
-/******************************/
+/**
+ * capacity_test() - Checks if sum of added values are the same as dequeue'd.
+ *
+ * Returns: void.
+ */
 
 
 void capacity_test()
 {
-	// Create empty list.
 
 	int *checkSum1 = calloc(1, sizeof(*checkSum1));
 	int *checkSum2 = calloc(1, sizeof(*checkSum2));
@@ -228,7 +282,7 @@ void capacity_test()
 	}
 	queue_print(q, print_ints);
 	if(*checkSum1 != *checkSum2) {
-		fprintf(stderr, "FAIL. Total value added is not the same removed: %d  %d\n\n", *checkSum1, *checkSum2);
+		fprintf(stderr, "FAIL. Totval addednot the same removed: %d  %d\n\n", *checkSum1, *checkSum2);
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
@@ -240,7 +294,13 @@ void capacity_test()
 
 }
 
-/******************************/
+/**
+ * order_type_test() - Addes and removes data in certain order to check if it
+ *                     is kept consistent. Also checks if it empty works correcetly.
+ *
+ *
+ * Returns: void.
+ */
 
 void order_type_test()
 {
@@ -248,6 +308,9 @@ void order_type_test()
 	q = add_all_types(q);
 	char *ch = malloc(sizeof(*ch));
 	*ch = 'B';
+
+    int *numb = malloc(sizeof(*numb));
+    *numb = 42;
 
 	double precision = 0.000001;
 
@@ -267,7 +330,7 @@ void order_type_test()
 	queue_print(q, print_ints);
 	if(fabs(*front_double - 3.140000) > precision) {
 		fprintf(stderr, "FAIL. The queue got modified after dequeue!\n");
-		fprintf(stderr, "Value: %lf. Should be: 0.000, with precision: %lf", *front_double, precision);
+		fprintf(stderr, "Value: %lf. Should be: pretty small, with precision: %lf", *front_double, precision);
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
@@ -314,6 +377,7 @@ void order_type_test()
 		exit(EXIT_FAILURE);
 	}
 
+
 	q = queue_enqueue(q, ch);
 	char *front_char = queue_front(q);
 	queue_print(q, print_ints);
@@ -321,6 +385,27 @@ void order_type_test()
 		printf("%c - ", *front_char);
 		fprintf(stderr, "FAIL. The queue got modified after dequeue or enqueue!\n");
 		fprintf(stderr, "Value: %c. Should be: %c", *front_char, *ch);
+		queue_kill(q);
+		exit(EXIT_FAILURE);
+	}
+    q = queue_enqueue(q, numb);
+	queue_dequeue(q);
+	queue_print(q, print_ints);
+
+
+	if ((queue_is_empty(q))) {
+		fprintf(stderr, "FAIL. New queue is not empty!\n");
+		queue_kill(q);
+		exit(EXIT_FAILURE);
+	}
+
+
+	int *front_numb = queue_front(q);
+	queue_print(q, print_ints);
+	if(*front_numb != 42) {
+		printf("%d - ", *front_numb);
+		fprintf(stderr, "FAIL. The queue got modified after dequeue or enqueue!\n");
+		fprintf(stderr, "Value: %d. Should be: 42", *front_numb);
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
@@ -334,16 +419,22 @@ void order_type_test()
 		exit(EXIT_FAILURE);
 	}
 
+
 	queue_kill(q);
 	printf("PASSED.\n\n");
 }
 
-/******************************/
+/**
+ * test_queue_structs() - Tests if the queue can handle structs and matrix.
+ *
+ *
+ * Returns: void.
+ */
 
 void test_queue_structs()
 {
 	testStruct *tstruct = malloc(sizeof(*tstruct));
-	testStruct *tstructs[10][10] = calloc(10 * 10, sizeof(struct));
+	testStruct *tstructs[10][10];
 
 	for(int i = 0; i < 11; i++) {
 		for(int j = 0; j < 11; j++) {
@@ -362,7 +453,7 @@ void test_queue_structs()
 	queue_print(q, print_ints);
 
 
-	if (!queue_is_empty(q)) {
+	if (queue_is_empty(q)) {
 		fprintf(stderr, "FAIL. New queue is not empty!\n");
 		queue_kill(q);
 		exit(EXIT_FAILURE);
@@ -408,7 +499,7 @@ int main(void)
 	printf("Testing adding different types:\n");
 	type_test();
 
-	printf("Testing 10000 values:\n");
+	printf("Testing adding 100 values:\n");
 	capacity_test();
 
 	printf("Testing if any function affects list element order:\n");
@@ -418,95 +509,3 @@ int main(void)
 	test_queue_structs();
 
 }
-
-
-
-
-/*
-void empty_deque_test()
-{
-
-	queue *q=queue_empty(NULL);
-
-	q = queue_dequeue(q);
-
-	if (!queue_is_empty(q)) {
-		fprintf(stderr, "FAIL. Empty queue is not empty after dequeue!\n");
-		queue_kill(q);
-		exit(EXIT_FAILURE);
-		printf("FAILED.\n\n");
-	}
-
-	queue_kill(q);
-	printf("PASSED.\n\n");
-
-}
-
-void empty_front_test()
-{
-	// Create empty list.
-	queue *q=queue_empty(NULL);
-	q = queue_front(q);
-
-	if (!queue_is_empty(q)) {
-		fprintf(stderr, "FAIL. Empty queue is not empty after dequeue!\n");
-		queue_kill(q);
-		exit(EXIT_FAILURE);
-	}
-
-	queue_kill(q);
-	printf("PASSED.\n\n");
-
-}
-*/
-
-
-/*
-	char *c =  malloc(sizeof(*c));
-	double *d =  malloc(sizeof(*d));
-	long *l =  malloc(sizeof(*l));
-	bool *b =  malloc(sizeof(*b));
-	int *v = malloc(sizeof(*v));
-
-
-	c="Svitri";
-	*d=3.1478;
-	*l=1234567;
-	*b=true;
-	*v=1;
-
-	q = queue_enqueue(q, c);
-	char *front_char = queue_front(q);
-	printf("Queue: %s - ", front_char);
-	queue_dequeue(q);
-
-	q = queue_enqueue(q, d);
-	double *front_double = queue_front(q);
-	printf("%lf - ", *front_double);
-	queue_dequeue(q);
-
-	q = queue_enqueue(q, l);
-	long *front_long = queue_front(q);
-	printf(" %lu - ", *front_long);
-	queue_dequeue(q);
-
-	q = queue_enqueue(q, b);
-	bool *front_bool = queue_front(q);
-	printf(" %d - ", *front_bool);
-	queue_dequeue(q);
-
-	q = queue_enqueue(q, v);
-	int *front_digit = queue_front(q);
-	printf("%d\n", *front_digit);
-	queue_dequeue(q);
-
-*/
-
-
-
-/*
-
-
-
-
-*/
