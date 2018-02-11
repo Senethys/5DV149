@@ -12,8 +12,8 @@
 
 * File:         queuetest.c
 * Description:  A test program for a queue implementation.
-*               Tests are mainly based on the axioms of queues,see below.
-*               Also check if the functions don't modify the data.
+*               Tests are mainly based on the axioms of queues, see below.
+*               Also checks if the functions don't modify the data.
 * Author:       Svitri Magnusson
 * CS username:  kv13smn
 * Date:         2018-02-08
@@ -32,7 +32,8 @@ Ax 6 !(Isempty(q)) -> Front(Enqueue(v, q)) = Front(q)
 
 */
 
-
+// This struct will be used to check if the queue implementation
+// can handle structs.
 typedef struct{
   int *intField;
   char *charField;
@@ -43,7 +44,7 @@ typedef struct{
 /**
  * print_ints - Print int values of the queue.
  * @data: Data to print.
- *
+ * This function simply prints any data in int form.
  * Returns: Void.
  */
 
@@ -62,12 +63,14 @@ void print_ints(const void *data)
 queue *add_all_types(queue *q)
 {
 
+    //Declare dynamic variables.
 	char *c =  malloc(sizeof(*c));
 	double *d =  malloc(sizeof(*d));
 	long *l =  malloc(sizeof(*l));
 	bool *b =  malloc(sizeof(*b));
 	int *v = malloc(sizeof(*v));
 
+    //Assign various values.
 	 c="test letters";
 	*d=3.14;
 	*l=1234567;
@@ -92,6 +95,7 @@ queue *add_all_types(queue *q)
 
 void empty_queue_test()
 {
+    //Creates empty queue, prints and checks if its empty.
 	queue *q=queue_empty(NULL);
 	queue_print(q, print_ints);
 	if (!queue_is_empty(q)) {
@@ -113,6 +117,7 @@ void empty_queue_test()
 
 void empty_enque_test()
 {
+    //Creates empty queue, populates it and checks if its empty.
 	queue *q=queue_empty(NULL);
 	queue_print(q, print_ints);
 	int *v = malloc(sizeof(*v));
@@ -132,37 +137,46 @@ void empty_enque_test()
 
 /**
  * empty_enque_deque_test() - Function translated to axioms:
-
  * Ax 3 Isempty(q) -> Dequeue(Enqueue(v, q)) = q
  * Ax 4 !(Isempty(q)) -> Dequeue (Enqueue(v, q)) = Enqueue(v, Dequeue(q))
+ *
+ * This function enqueues and then immidiately dequeues to check if its empty.
  *
  * Returns: void
  */
 
 void empty_enque_deque_test()
 {
+    //Create empty queue and populate it.
 	queue *q=queue_empty(NULL);
 	int *v = malloc(sizeof(*v));
 	int *v2 = malloc(sizeof(*v2));
-
 	*v=1;
 	*v2=2;
 
+    //Puts an element in the queue and immidiately removes it.
 	q = queue_dequeue(queue_enqueue(q, v));
 	queue_print(q, print_ints);
+
+    //Checks if its impty.
 	if (!queue_is_empty(q)) {
 		fprintf(stderr, "FAIL. New queue is not empty after enqueue and deqeue!\n");
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
+
+    //Puts two elements and subsequently removes one.
 	q = queue_dequeue(queue_enqueue(queue_enqueue(q, v), v2));
 	queue_print(q, print_ints);
+
+    //Checks if queue is empty.
 	if (queue_is_empty(q)) {
 		fprintf(stderr, "FAIL. New queue is empty after enqueue-deqeue-enqueue!\n");
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
 
+    //Removes the last element and ads another one.
 	q = queue_enqueue(queue_dequeue(q), v2);
 	queue_print(q, print_ints);
 	if (queue_is_empty(q)) {
@@ -181,11 +195,14 @@ void empty_enque_deque_test()
  * Ax 5 Isempty(q) -> Fron(Enqueue(v,q)) = v
  * Ax 6 !(Isempty(q)) -> Front(Enqueue(v, q)) = Front(q)
  *
+ * This function populates queue and checks if front works appropriately.
+ *
  * Returns: void
  */
 
 void queue_front_test()
 {
+    //Creates to variables that will be used to test the front function.
 	queue *q=queue_empty(NULL);
 	int *v = malloc(sizeof(*v));
 	int *v2 = malloc(sizeof(*v2));
@@ -195,11 +212,13 @@ void queue_front_test()
 	*v = 1;
 	*v2 = 2;
 
+    //Enqueus one variables and checks if its the same retrieved.
 	queue_print(q, print_ints);
 	t = queue_front(queue_enqueue(q, v));
 	queue_print(q, print_ints);
 
-
+    //Alerts if the queue turns out to be empty or
+    //value is not the same as expected.
 	if (queue_is_empty(q) || (!(*t == *v))) {
 		fprintf(stderr, "FAIL. Queue is empty after enqueue and front or\n");
 		fprintf(stderr, "latest value added is not the same as front.\n");
@@ -208,10 +227,13 @@ void queue_front_test()
 		exit(EXIT_FAILURE);
 	}
 
+    //Does the same as previous but with extra value.
 	v = queue_front(queue_enqueue(q, v2));
 	t = queue_front(q);
 	queue_print(q, print_ints);
 
+    //Alerts if the queue turns out to be empty or
+    //value is not the same as expected.
 	if (queue_is_empty(q) || (!(*t == *v))) {
 		fprintf(stderr, "FAIL. New queue is empty after enqueue and front or\n");
 		fprintf(stderr, "latest value added is not the same as front.\n");
@@ -231,10 +253,13 @@ void queue_front_test()
 
 void type_test()
 {
+    //Creates an empty queue, and pupulates it with primitive datatypes.
+    //If the implementation can't handle it, it will crash.
 	queue *q = queue_empty(NULL);
 	q = add_all_types(q);
 	queue_print(q, print_ints);
 
+    //Also checks if it is empty.
 	if (queue_is_empty(q)) {
 		fprintf(stderr, "FAIL. New queue is empty after enqueue!\n");
 		queue_kill(q);
@@ -248,7 +273,8 @@ void type_test()
 
 /**
  * capacity_test() - Checks if sum of added values are the same as dequeue'd.
- *
+ * This function populates the queue with increasing integers.
+ * A same
  * Returns: void.
  */
 
@@ -256,19 +282,23 @@ void type_test()
 void capacity_test()
 {
 
+    //These variables track accumulated value after enque and after dequeue.
 	int *checkSum1 = calloc(1, sizeof(*checkSum1));
 	int *checkSum2 = calloc(1, sizeof(*checkSum2));
 
+    //Create a queue datastructure with dynamic memory.
 	queue *q=queue_empty(NULL);
 	q = add_all_types(q);
 
+    //Enqueue 101 values and accumulate the total sum, save it to checkSum1.
 	for(int i = 0; i <= 100; i++) {
 		int *number = malloc(sizeof(*number));
 		*number = i;
 		q = queue_enqueue(q, number);
-
 		*checkSum1 += i;
 	}
+
+    //Checks if its empty.
 	queue_print(q, print_ints);
 	if (queue_is_empty(q)) {
 		fprintf(stderr, "FAIL. Empty queue is not empty after 10000 values!\n");
@@ -276,10 +306,14 @@ void capacity_test()
 		exit(EXIT_FAILURE);
 	}
 
+    //Deqeueu the same values and accumulate value to checkSum2.
 	for(int i = 100; i >= 0; i--) {
 		q = queue_dequeue(q);
 		*checkSum2 += i;
 	}
+
+    //Compare the checksums. If they are the same, the queue did not modify
+    //any values.
 	queue_print(q, print_ints);
 	if(*checkSum1 != *checkSum2) {
 		fprintf(stderr, "FAIL. Totval addednot the same removed: %d  %d\n\n", *checkSum1, *checkSum2);
@@ -295,7 +329,7 @@ void capacity_test()
 }
 
 /**
- * order_type_test() - Addes and removes data in certain order to check if it
+ * order_type_test() - Adds and removes data in certain order to check if it
  *                     is kept consistent. Also checks if it empty works correcetly.
  *
  *
@@ -304,17 +338,30 @@ void capacity_test()
 
 void order_type_test()
 {
+    //Creates an empty queue and populates it with pimitivice datatypes.
 	queue *q = queue_empty(NULL);
 	q = add_all_types(q);
+
+    //Två variabler med primitiva datatyper skapas för att senare läggas till
+    //i kön.
 	char *ch = malloc(sizeof(*ch));
 	*ch = 'B';
 
     int *numb = malloc(sizeof(*numb));
     *numb = 42;
 
+    //EPSILON prescision för att jämnföra två double.
 	double precision = 0.000001;
 
+    //Följande kod lägger till och tar bort element från kön, och skriver ut den.
+    //Om kö implementationen förändrar ordningen på elementen kommer programmet
+    //att krasha för att ordingen av vilka datatyper som kan skrivas ut är förutsbestämda.
+    //Samtliga enqueue och dequeue operationer testas för att kolla om listan
+    //blir tom.
+    //E:Enqueue D:Dequeue
+    //E, E, E, E, E, E, D, D, D, D, D, E, E, D, D
 
+    //Lär av front och ta bort...
 	char *front_str = queue_front(q);
 	queue_print(q, print_ints);
 	if((strcmp(front_str, "test letters") != 0)) {
@@ -326,6 +373,7 @@ void order_type_test()
 
 	queue_dequeue(q);
 
+    //Läs av front och ta bort...
 	double *front_double = queue_front(q);
 	queue_print(q, print_ints);
 	if(fabs(*front_double - 3.140000) > precision) {
@@ -337,6 +385,7 @@ void order_type_test()
 
 	queue_dequeue(q);
 
+    //Läs av front och ta bort...
 	long *front_long = queue_front(q);
 	queue_print(q, print_ints);
 	if(*front_long != 1234567) {
@@ -348,6 +397,7 @@ void order_type_test()
 
 	queue_dequeue(q);
 
+    //Läs av front och ta bort...
 	bool *front_bool = queue_front(q);
 	queue_print(q, print_ints);
 	if(*front_bool != 0) {
@@ -359,6 +409,7 @@ void order_type_test()
 
 	queue_dequeue(q);
 
+    //Läs av front och ta bort...
 	int *front_digit = queue_front(q);
 	queue_print(q, print_ints);
 	if(*front_digit != 42) {
@@ -377,7 +428,7 @@ void order_type_test()
 		exit(EXIT_FAILURE);
 	}
 
-
+    //Lägg till ett element, läs av och ta bort.
 	q = queue_enqueue(q, ch);
 	char *front_char = queue_front(q);
 	queue_print(q, print_ints);
@@ -392,14 +443,13 @@ void order_type_test()
 	queue_dequeue(q);
 	queue_print(q, print_ints);
 
-
 	if ((queue_is_empty(q))) {
 		fprintf(stderr, "FAIL. New queue is not empty!\n");
 		queue_kill(q);
 		exit(EXIT_FAILURE);
 	}
 
-
+    //Lägg till ett element, läs av och ta bort.
 	int *front_numb = queue_front(q);
 	queue_print(q, print_ints);
 	if(*front_numb != 42) {
@@ -425,7 +475,7 @@ void order_type_test()
 }
 
 /**
- * test_queue_structs() - Tests if the queue can handle structs and matrix.
+ * test_queue_structs() - Provar om kö implementeringen kan hantera matriser.
  *
  *
  * Returns: void.
@@ -433,9 +483,12 @@ void order_type_test()
 
 void test_queue_structs()
 {
+    //Decleras a dynamic structure and a matrix of tstructs.
 	testStruct *tstruct = malloc(sizeof(*tstruct));
 	testStruct *tstructs[10][10];
 
+    //Matrix blir populeras med en succesiv summering av rad och kolumn.
+    //Andra fältet populeras med "String".
 	for(int i = 0; i < 11; i++) {
 		for(int j = 0; j < 11; j++) {
 			*tstruct->intField = j + i;
@@ -443,9 +496,11 @@ void test_queue_structs()
 		}
 	}
 
+    //Tests assignements and enqueues them.
 	*tstruct->intField = 24;
 	tstruct->charField = "Twenty Four";
 
+    //The program should crash if the program can't handle structs.
 	queue *q=queue_empty(NULL);
 	queue_enqueue(q, tstruct);
 	queue_enqueue(q, tstructs);
@@ -507,5 +562,7 @@ int main(void)
 
 	printf("Testing structs:\n");
 	test_queue_structs();
+
+    return 0;
 
 }

@@ -33,9 +33,6 @@ Ax 8 Length (Enqueue(v, q)) = Lenght(q) + 1
 
 
 
-
-
-
 int main(void)
 {
 	// Create the queue.
@@ -85,8 +82,7 @@ int main(void)
 
 
 */
-
-	}
+}
 
 
 
