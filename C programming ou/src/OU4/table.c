@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "table.h"
-
+#include "dlist.h"
 
 /*
  * Implementation of a generic table for the "Datastructures and
@@ -23,7 +23,7 @@
 // ===========INTERNAL DATA TYPES============
 
 struct table {
-	array_1d *entries;
+	dlist *entries;
 	compare_function *key_cmp_func;
 	free_function key_free_func;
 	free_function value_free_func;
@@ -34,8 +34,6 @@ struct table_entry {
 	void *value;
 };
 
-#define LOW = 1;
-#define HIGH = 80000;
 // ===========INTERNAL FUNCTION IMPLEMENTATIONS============
 
 /**
@@ -48,23 +46,19 @@ struct table_entry {
  *
  * Return: Pointer to a new table.
  */
-table *table_empty(compare_function *key_cmp_func,
+table *table_empty(compare_function *key_cmp_func, 
 		   free_function key_free_func,
 		   free_function value_free_func)
 {
-	// Allocate space.
-	array_1d *a = array_1d_create(free,LOW,HIGH);
+	// Allocate the table header.
+	table *t = calloc(sizeof(table), 1);
 	// Create the list to hold the table_entry-ies.
-	// ASD
-
-
-
 	t->entries = dlist_empty(free);
 	// Store the key compare function and key/value free functions.
 	t->key_cmp_func = key_cmp_func;
 	t->key_free_func = key_free_func;
 	t->value_free_func = value_free_func;
-
+	
 	return t;
 }
 
@@ -219,7 +213,7 @@ void table_print(const table *t, inspect_callback_pair print_func)
 		struct table_entry *e = dlist_inspect(t->entries, pos);
 		// Call print_func
 		print_func(e->key, e->value);
-
+		
 		pos = dlist_next(t->entries, pos);
 	}
 }

@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "table.h"
-
+#include "dlist.h"
 
 /*
  * Implementation of a generic table for the "Datastructures and
@@ -23,7 +23,7 @@
 // ===========INTERNAL DATA TYPES============
 
 struct table {
-	array_1d *entries;
+	dlist *entries;
 	compare_function *key_cmp_func;
 	free_function key_free_func;
 	free_function value_free_func;
@@ -34,8 +34,6 @@ struct table_entry {
 	void *value;
 };
 
-#define LOW = 1;
-#define HIGH = 80000;
 // ===========INTERNAL FUNCTION IMPLEMENTATIONS============
 
 /**
@@ -52,13 +50,9 @@ table *table_empty(compare_function *key_cmp_func,
 		   free_function key_free_func,
 		   free_function value_free_func)
 {
-	// Allocate space.
-	array_1d *a = array_1d_create(free,LOW,HIGH);
+	// Allocate the table header.
+	table *t = calloc(sizeof(table), 1);
 	// Create the list to hold the table_entry-ies.
-	// ASD
-
-
-
 	t->entries = dlist_empty(free);
 	// Store the key compare function and key/value free functions.
 	t->key_cmp_func = key_cmp_func;
@@ -124,7 +118,26 @@ void *table_lookup(const table *t, const void *key)
 		struct table_entry *entry = dlist_inspect(t->entries, pos);
 		// Check if the entry key matches the search key.
 		if (t->key_cmp_func(entry->key, key) == 0) {
-			// If yes, return the corresponding value pointer.
+			// If yes, return the corresponding value pointer by first copying,
+			// deleting and inserting the key value into to the list again.
+
+			// Make a copy and allocate dynamic memory
+			struct table_entry *entrycpy = malloc(sizeof(struct table_entry));
+
+			// Transfer values
+      		void *keyCpy = entry->key;
+      		void *valCpy = entry->value;
+
+			// Assign values
+      		entrycpy->key = keyCpy;
+      		entrycpy->value = valCpy;
+
+			// Remove original cell.
+      		dlist_remove(t->entries, pos);
+
+      		dlist_insert(t->entries, entrycpy, dlist_first(t->entries));
+			return entrycpy->value;
+
 			return entry->value;
 		}
 		// Continue with the next position.
