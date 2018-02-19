@@ -46,7 +46,7 @@ typedef struct table table;
  *
  * Return: Pointer to a new table.
  */
-table *table_empty(compare_function key_cmp_func, 
+table *table_empty(compare_function key_cmp_func,
 		   free_function key_free_func,
 		   free_function value_free_func);
 
@@ -120,6 +120,6 @@ void table_kill(table *t);
  *
  * Returns: Nothing.
  */
-void table_print(const table *t, inspect_callback_pair print_func);
+void table_print(const table *t, inspect_callback print_func);
 
 #endif

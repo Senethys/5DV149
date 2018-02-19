@@ -1,11 +1,11 @@
-#ifndef __ARRAY_1D_H
-#define __ARRAY_1D_H
+#ifndef __ARRAY_2D_H
+#define __ARRAY_2D_H
 
 #include <stdbool.h>
 #include "util.h"
 
 /*
- * Declaration of a generic 1D array for the "Datastructures and
+ * Declaration of a generic 2D array for the "Datastructures and
  * algorithms" courses at the Department of Computing Science, Umea
  * University. The array stores void pointers, so it can be used to
  * store all types of values. After use, the function array_kill must
@@ -27,86 +27,94 @@
 // ==========PUBLIC DATA TYPES============
 
 // List type.
-typedef struct array_1d array_1d;
+typedef struct array_2d array_2d;
 
 // ==========DATA STRUCTURE INTERFACE==========
 
 /**
- * array_1d_create() - Create an array without values.
+ * array_2d_create() - Create an array without values.
  * @free_func: A pointer to a function (or NULL) to be called to
  *	       de-allocate memory on remove/kill.
- * @lo: low index limit.
- * @hi: high index limit.
+ * @lo1: low index limit for first dimension.
+ * @lo2: low index limit for second dimension.
+ * @hi1: high index limit for first dimension.
+ * @hi2: high index limit for second dimension.
  *
  * The index limits are inclusive, i.e. all indices i such that low <=
  * i <= high are defined.
- *
+ * 
  * Returns: A pointer to the new array, or NULL if not enough memory
  * was available.
  */
-array_1d *array_1d_create(free_function free_func, int lo, int hi);
+array_2d *array_2d_create(free_function free_func, int lo1, int lo2,
+			  int hi1, int hi2);
 
 /**
- * array_1d_low() - Return the low index limit for the array.
+ * array_2d_low() - Return the low index limit for the array.
  * @a: array to inspect.
+ * @d: dimension number, 1 or 2.
  *
- * Returns: The low index limit.
+ * Returns: The low index limit for dimension number d.
  */
-int array_1d_low(const array_1d *a);
+int array_2d_low(const array_2d *a, int d);
 
 /**
- * array_1d_high() - Return the high index limit for the array.
+ * array_2d_high() - Return the high index limit for the array.
  * @a: array to inspect.
+ * @d: dimension number, 1 or 2.
  *
- * Returns: The high index limit.
+ * Returns: The high index limit for dimension number d.
  */
-int array_1d_high(const array_1d *a);
+int array_2d_high(const array_2d *a, int d);
 
 /**
- * array_1d_inspect_value() - Inspect a value at a given array position.
+ * array_2d_inspect_value() - Inspect a value at a given array position.
  * @a: array to inspect.
- * @i: index of position to inspect.
+ * @i: first index of position to inspect.
+ * @j: second index of position to inspect.
  *
  * Returns: The element value at the specified position. The result is
  *	    undefined if no value are stored at that position.
  */
-void *array_1d_inspect_value(const array_1d *a, int i);
+void *array_2d_inspect_value(const array_2d *a, int i, int j);
 
 /**
- * array_1d_has_value() - Check if a value is set at a given array position.
+ * array_2d_has_value() - Check if a value is set at a given array position.
  * @a: array to inspect.
- * @i: index of position to inspect.
+ * @i: first index of position to inspect.
+ * @j: second index of position to inspect.
  *
  * Returns: True if a value is set at the specified position, otherwise false.
  */
-bool array_1d_has_value(const array_1d *a, int i);
+bool array_2d_has_value(const array_2d *a, int i, int j);
 
 /**
- * array_1d_set_value() - Set a value at a given array position.
+ * array_2d_set_value() - Set a value at a given array position.
  * @a: array to modify.
  * @v: value to set element to, or NULL to clear value.
- * @i: index of position to modify.
- *
+ * @i: first index of position to inspect.
+ * @j: second index of position to inspect.
+ * 
  * If the old element value is non-NULL, calls free_func if it was
  * specified at array creation.
  *
  * Returns: Nothing.
  */
-void array_1d_set_value(array_1d *a, void *v, int i);
+void array_2d_set_value(array_2d *a, void *v, int i, int j);
 
 /**
- * array_1d_kill() - Return memory allocated by array.
+ * array_2d_kill() - Return memory allocated by array.
  * @a: array to kill.
- *
+ * 
  * Iterates over all elements. If free_func was specified at array
  * creation, calls it for every non-NULL element value.
  *
  * Returns: Nothing.
  */
-void array_1d_kill(array_1d *a);
+void array_2d_kill(array_2d *a);
 
 /**
- * array_1d_print() - Iterate over the array element and print their values.
+ * array_2d_print() - Iterate over the array element and print their values.
  * @a: Array to inspect.
  * @print_func: Function called for each non-NULL element.
  *
@@ -115,6 +123,6 @@ void array_1d_kill(array_1d *a);
  *
  * Returns: Nothing.
  */
-void array_1d_print(const array_1d * l, inspect_callback print_func);
+void array_2d_print(const array_2d * l, inspect_callback print_func);
 
 #endif
