@@ -59,6 +59,9 @@ table *table_empty(compare_function *key_cmp_func,
 	// Allocate space.
 	t->entries = array_1d_create(free,LOW,HIGH);
 	// Create the list to hold the table_entry-ies.
+	t->key_cmp_func = key_cmp_func;
+	t->key_free_func = key_free_func;
+	t->value_free_func = value_free_func;
 
 	return t;
 }
@@ -100,10 +103,8 @@ void table_insert(table *t, void *key, void *value)
 	// Allocate the key/value structure.
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
 
-	m->name=calloc(strlen(months[i-1])+1,sizeof(char));
-
-	strcpy(entry->key, key);
-	strcpy(entry->value, value);
+	entry->key = key;
+	entry->value = value;
 
 	//whilte low to high is not null
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
@@ -126,18 +127,25 @@ void table_insert(table *t, void *key, void *value)
  */
 void *table_lookup(const table *t, const void *key)
 {
-	struct table_entry *entry;
-
+	int i=array_1d_low(t->entries);
+	void *result = NULL;
 	//Iterate over the list. Return first match.
-	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-		entry = array_1d_inspect_value(t->entries, i);
+	while (i <= array_1d_high(t->entries)) {
 
-		if (t->key_cmp_func(entry->key, key) == 0) {
-			// If yes, return the corresponding value pointer.
-			return entry->value;
+		//Allocate space to variables!!!
+		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
+		bool array_check = array_1d_has_value(t->entries, i);
+		int key_cmp_check = t->key_cmp_func(entry->key, key);
+		if (key_cmp_check == 0) {
+			if(array_check == true){
+				break;
+				result = entry->value;
+				return result;
+			}
 		}
+		i++;
 	}
-	return NULL;
+	return result;
 }
 
 /**
