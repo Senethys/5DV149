@@ -132,17 +132,16 @@ void *table_lookup(const table *t, const void *key)
 	//Iterate over the list. Return first match.
 	while (i <= array_1d_high(t->entries)) {
 
-		//Allocate space to variables!!!
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
 		bool array_check = array_1d_has_value(t->entries, i);
-		int key_cmp_check = t->key_cmp_func(entry->key, key);
-		if (key_cmp_check == 0) {
+
 			if(array_check == true){
-				break;
-				result = entry->value;
-				return result;
+				int key_cmp_check = t->key_cmp_func(entry->key, key);
+				if (key_cmp_check == 0) {
+					result = entry->value;
+					return result;
+				}
 			}
-		}
 		i++;
 	}
 	return result;

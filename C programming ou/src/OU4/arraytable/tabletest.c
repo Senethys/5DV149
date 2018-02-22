@@ -315,6 +315,7 @@ void testIsempty(){
 /* Tests if isempty returns false directly after a table is created
  * and one element (key-value-pair) is inserted to it.
  */
+ //Seg fault here
 void testInsertSingleElement()
 {
 	table *t = table_empty(string_compare, free, free);
