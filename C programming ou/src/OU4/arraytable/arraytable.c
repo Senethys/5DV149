@@ -38,6 +38,7 @@ struct table_entry {
 
 #define LOW 1
 #define HIGH 1000
+#define TABLESIZE HIGH - LOW
 
 // ===========INTERNAL FUNCTION IMPLEMENTATIONS============
 
@@ -78,8 +79,7 @@ bool table_is_empty(const table *t)
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		bool has_val = array_1d_has_value(t->entries, i);
 		if(has_val) {
-			flag = false;
-			break;
+			return false;
 		}
 	}
 	return flag;
@@ -111,7 +111,6 @@ void table_insert(table *t, void *key, void *value)
 		bool has_val = array_1d_has_value(t->entries, i);
 		if(!has_val) {
 			array_1d_set_value(t->entries, entry, i);
-			break;
 		}
 	}
 }
@@ -135,11 +134,11 @@ void *table_lookup(const table *t, const void *key)
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
 		bool array_check = array_1d_has_value(t->entries, i);
 
-			if(array_check == true){
+			if(array_check){
 				int key_cmp_check = t->key_cmp_func(entry->key, key);
 				if (key_cmp_check == 0) {
 					result = entry->value;
-					return result;
+
 				}
 			}
 		i++;
@@ -160,33 +159,34 @@ void *table_lookup(const table *t, const void *key)
  */
 void table_remove(table *t, const void *key)
 {
-	// Iterate over the list. Remove any entries with matching keys.
 
-// 	dlist_pos pos = dlist_first(t->entries);
-//
-// 	while (!dlist_is_end(t->entries, pos)) {
-// 		// Inspect the table entry
-// 		struct table_entry *entry = dlist_inspect(t->entries, pos);
-//
-// 		// Compare the supplied key with the key of this entry.
-// 		if (t->key_cmp_func(entry->key, key) == 0) {
-// 			// If we have a match, call free on the key
-// 			// and/or value if given the responsiblity
-// 			if (t->key_free_func != NULL) {
-// 				t->key_free_func(entry->key);
-// 			}
-// 			if (t->value_free_func != NULL) {
-// 				t->value_free_func(entry->value);
-// 			}
-// 			// Remove the list element itself.
-// 			pos = dlist_remove(t->entries, pos);
-// 		} else {
-// 			// No match, move on to next element in the list.
-// 			pos = dlist_next(t->entries, pos);
-// 		}
-// 	}
-return NULL;
+
+
+	//Iterate over the list.
+	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
+		bool array_check = array_1d_has_value(t->entries, i);
+
+			if(array_check){
+				if (t->key_cmp_func(entry->key, key) == 0) {
+					// If we have a match, call free on the key
+					// and/or value if given the responsiblity
+					if (t->key_free_func != NULL) {
+						t->key_free_func(entry->key);
+					}
+					if (t->value_free_func != NULL) {
+						t->value_free_func(entry->value);
+					}
+					entry->key = NULL;
+					entry->value = NULL;
+					entry = NULL;
+				}
+			}
+		i++;
+	}
 }
+
+
 
 /*
  * table_kill() - Destroy a table.
