@@ -103,16 +103,31 @@ void table_insert(table *t, void *key, void *value)
 	// Allocate the key/value structure.
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
 
-	entry->key = key;
-	entry->value = value;
+	void *keyCpy = key;
+	void *valCpy = value;
+	entry->key = keyCpy;
+	entry->value = valCpy;
 
 	//whilte low to high is not null
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		bool has_val = array_1d_has_value(t->entries, i);
+
 		if(!has_val) {
 			array_1d_set_value(t->entries, entry, i);
+			return NULL;
+
+		} else if(t->key_cmp_func(entry->key, key)) {
+			printf("MATCH!\n");
+			struct table_entry *entryCpy = malloc(sizeof(struct table_entry));
+			void *valCpy = value;
+			void *keyCpy = key;
+	 		entryCpy->key = keyCpy;
+	 		entryCpy->value = valCpy;
+	 		array_1d_set_value(t->entries, entryCpy, i);
+
 		}
 	}
+	return NULL;
 }
 
 /**
@@ -127,23 +142,23 @@ void table_insert(table *t, void *key, void *value)
 void *table_lookup(const table *t, const void *key)
 {
 	int i=array_1d_low(t->entries);
-	void *result = NULL;
+
 	//Iterate over the list. Return first match.
 	while (i <= array_1d_high(t->entries)) {
-
-		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
+		struct table_entry *entry = malloc(sizeof(struct table_entry));
+		entry = array_1d_inspect_value(t->entries, i);
 		bool array_check = array_1d_has_value(t->entries, i);
 
-			if(array_check){
-				int key_cmp_check = t->key_cmp_func(entry->key, key);
-				if (key_cmp_check == 0) {
-					result = entry->value;
+		if(array_check){
+			int key_cmp_check = t->key_cmp_func(entry->key, key);
+			if (key_cmp_check == 0) {
 
-				}
+			return entry->value;
 			}
-		i++;
+		}
+	i++;
 	}
-	return result;
+	return NULL;
 }
 
 /**
@@ -160,13 +175,10 @@ void *table_lookup(const table *t, const void *key)
 void table_remove(table *t, const void *key)
 {
 
-
-
 	//Iterate over the list.
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
 		bool array_check = array_1d_has_value(t->entries, i);
-
 			if(array_check){
 				if (t->key_cmp_func(entry->key, key) == 0) {
 					// If we have a match, call free on the key
@@ -177,10 +189,9 @@ void table_remove(table *t, const void *key)
 					if (t->value_free_func != NULL) {
 						t->value_free_func(entry->value);
 					}
-					entry->key = NULL;
-					entry->value = NULL;
-					entry = NULL;
 				}
+			} else {
+				printf("NO MATCH\n");
 			}
 		i++;
 	}
