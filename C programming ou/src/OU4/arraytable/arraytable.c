@@ -56,6 +56,7 @@ struct table_entry {
 table *table_empty(compare_function *key_cmp_func,
 		   free_function key_free_func,
 		   free_function value_free_func)
+
 {
 	table *t = calloc(sizeof(table), 1);
 	// Allocate space.
@@ -64,7 +65,7 @@ table *table_empty(compare_function *key_cmp_func,
 	t->key_cmp_func = key_cmp_func;
 	t->key_free_func = key_free_func;
 	t->value_free_func = value_free_func;
-
+	t->size = 0;
 	return t;
 }
 
@@ -102,43 +103,35 @@ bool table_is_empty(const table *t)
  */
 void table_insert(table *t, void *key, void *value)
 {
-	// Allocate the key/value structure.
+
+	bool duplicateFound = false;
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
 	entry->key = key;
 	entry->value = value;
-	//whilte low to high is not null
-	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-		struct table_entry *temp = array_1d_inspect_value(t->entries, i);
-		if(t->key_cmp_func(temp->key, key)) {
-			t->key_free_func(key);
-			t->value_free_func(temp->value);
-			array_1d_set_value(t->entries, entry, i);
-			//increase size
-			//Added value = TRUE;
-			break;
-		}
-		// } else if(t->key_cmp_func(entry->key, key)) {
-		// 	printf("MATCH!\n");
-		// 	struct table_entry *entryCpy = malloc(sizeof(struct table_entry));
-		// 	void *valCpy = value;
-		// 	void *keyCpy = key;
-	 	// 	entryCpy->key = keyCpy;
-	 	// 	entryCpy->value = valCpy;
-	 	// 	array_1d_set_value(t->entries, entryCpy, i);
-		//
-		// }
-	}
-	//If value not added:
-		//Add value at size
 
+	if(table_is_empty(t)) {
+		array_1d_set_value(t->entries, entry, 1);
+		t->size++;
+
+	} else {
+		for (int i=array_1d_low(t->entries); i <= t->size; i++) {
+			struct table_entry *temp = array_1d_inspect_value(t->entries, i);
+
+		 	if(t->key_cmp_func(temp->key, key) == 0) {
+				t->key_free_func(temp->key);
+				t->value_free_func(temp->value);
+				array_1d_set_value(t->entries, entry, i);
+				duplicateFound = true;
+				break;
+			}
+		}
+
+		if(!duplicateFound) {
+			array_1d_set_value(t->entries, entry, (t->size)+1);
+			t->size++;
+		}
+	}
 }
-		// else {
-		// 		struct table_entry *lookUpentry = array_1d_inspect_value(t->entries, i);
-		// 		if(t->key_cmp_func(lookUpentry->key, key)) {
-		// 			array_1d_set_value(t->entries, entry, i);
-		// 			break;
-		// 		}
-		// 	}
 
 	/**
  * table_lookup() - Look up a given key in a table.
@@ -153,17 +146,11 @@ void *table_lookup(const table *t, const void *key)
 {
 	int i=array_1d_low(t->entries);
 	//Iterate over the list. Return first match.
-	while (i <= array_1d_high(t->entries)) {
+	while (i <= t->size) {
 		struct table_entry *entry = malloc(sizeof(struct table_entry));
 		entry = array_1d_inspect_value(t->entries, i);
-		bool array_check = array_1d_has_value(t->entries, i);
-			if(array_check){
-				int key_cmp_check = t->key_cmp_func(entry->key, key);
-				if (key_cmp_check == 0) {
-					return entry->value;
-
+		if (t->key_cmp_func(entry->key, key) == 0) {
 			return entry->value;
-			}
 		}
 	i++;
 	}
