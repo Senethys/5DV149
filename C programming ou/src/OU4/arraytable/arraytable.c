@@ -29,6 +29,7 @@ struct table {
 	compare_function *key_cmp_func;
 	free_function key_free_func;
 	free_function value_free_func;
+	int size;
 };
 
 struct table_entry {
@@ -79,7 +80,8 @@ bool table_is_empty(const table *t)
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		bool has_val = array_1d_has_value(t->entries, i);
 		if(has_val) {
-			return false;
+			flag = false;
+			break;
 		}
 	}
 	return flag;
@@ -102,20 +104,33 @@ void table_insert(table *t, void *key, void *value)
 {
 	// Allocate the key/value structure.
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
-
 	entry->key = key;
 	entry->value = value;
-
 	//whilte low to high is not null
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-		bool has_val = array_1d_has_value(t->entries, i);
-		if(!has_val) {
+		struct table_entry *temp = array_1d_inspect_value(t->entries, i);
+		if(t->key_cmp_func(temp->key, key)) {
+			t->key_free_func(key);
+			t->value_free_func(temp->value);
 			array_1d_set_value(t->entries, entry, i);
+			//increase size
+			//Added value = TRUE;
+			break;
 		}
 	}
-}
+	//If value not added:
+		//Add value at size
 
-/**
+}
+		// else {
+		// 		struct table_entry *lookUpentry = array_1d_inspect_value(t->entries, i);
+		// 		if(t->key_cmp_func(lookUpentry->key, key)) {
+		// 			array_1d_set_value(t->entries, entry, i);
+		// 			break;
+		// 		}
+		// 	}
+
+	/**
  * table_lookup() - Look up a given key in a table.
  * @table: Table to inspect.
  * @key: Key to look up.
@@ -127,23 +142,21 @@ void table_insert(table *t, void *key, void *value)
 void *table_lookup(const table *t, const void *key)
 {
 	int i=array_1d_low(t->entries);
-	void *result = NULL;
 	//Iterate over the list. Return first match.
 	while (i <= array_1d_high(t->entries)) {
 
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
 		bool array_check = array_1d_has_value(t->entries, i);
-
 			if(array_check){
 				int key_cmp_check = t->key_cmp_func(entry->key, key);
 				if (key_cmp_check == 0) {
-					result = entry->value;
+					return entry->value;
 
 				}
 			}
 		i++;
 	}
-	return result;
+	return NULL;
 }
 
 /**
@@ -160,8 +173,6 @@ void *table_lookup(const table *t, const void *key)
 void table_remove(table *t, const void *key)
 {
 
-
-
 	//Iterate over the list.
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
@@ -177,9 +188,6 @@ void table_remove(table *t, const void *key)
 					if (t->value_free_func != NULL) {
 						t->value_free_func(entry->value);
 					}
-					entry->key = NULL;
-					entry->value = NULL;
-					entry = NULL;
 				}
 			}
 		i++;
