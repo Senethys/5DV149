@@ -115,17 +115,17 @@ void table_insert(table *t, void *key, void *value)
 		if(!has_val) {
 			array_1d_set_value(t->entries, entry, i);
 			return NULL;
-
-		} else if(t->key_cmp_func(entry->key, key)) {
-			printf("MATCH!\n");
-			struct table_entry *entryCpy = malloc(sizeof(struct table_entry));
-			void *valCpy = value;
-			void *keyCpy = key;
-	 		entryCpy->key = keyCpy;
-	 		entryCpy->value = valCpy;
-	 		array_1d_set_value(t->entries, entryCpy, i);
-
 		}
+		// } else if(t->key_cmp_func(entry->key, key)) {
+		// 	printf("MATCH!\n");
+		// 	struct table_entry *entryCpy = malloc(sizeof(struct table_entry));
+		// 	void *valCpy = value;
+		// 	void *keyCpy = key;
+	 	// 	entryCpy->key = keyCpy;
+	 	// 	entryCpy->value = valCpy;
+	 	// 	array_1d_set_value(t->entries, entryCpy, i);
+		//
+		// }
 	}
 	return NULL;
 }
