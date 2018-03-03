@@ -200,13 +200,13 @@ void table_remove(table *t, const void *key)
 				struct table_entry *temp = malloc(sizeof(struct table_entry));
 				struct table_entry *last = array_1d_inspect_value(t->entries, t->size);
 
-				memcpy(temp, last, sizeof(struct table_entry));
+				//memcpy(temp, last, sizeof(struct table_entry));
 
-				// void *tmpKey = last->key;
-				// void *tmpValue = last->value;
-				//
-				// temp->key = tmpKey;
-				// temp->value = tmpValue;
+				char tmpKey = *(char*)last->key;
+				char tmpValue = *(char*)last->value; //Pointer to a void*
+
+				temp->key = &tmpKey;
+				temp->value = &tmpValue;
 
 				array_1d_set_value(t->entries, temp, i);
 
