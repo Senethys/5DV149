@@ -77,15 +77,25 @@ table *table_empty(compare_function *key_cmp_func,
  */
 bool table_is_empty(const table *t)
 {
-	bool flag = true;
-	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-		bool has_val = array_1d_has_value(t->entries, i);
-		if(has_val) {
-			flag = false;
-			break;
-		}
+	if (t->size == 0) {
+		return true;
 	}
-	return flag;
+	else {
+		return false;
+	}
+
+
+	// bool flag = true;
+	// for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+	// 	bool has_val = array_1d_has_value(t->entries, i);
+	// 	if(has_val) {
+	// 		flag = false;
+	// 		break;
+	// 	}
+	// }
+	// return flag;
+
+
 }
 
 /**
@@ -170,27 +180,49 @@ void *table_lookup(const table *t, const void *key)
  */
 void table_remove(table *t, const void *key)
 {
-
 	//Iterate over the list.
-	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+
+	for (int i=array_1d_low(t->entries); i<=t->size; i++) {
 		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
-		bool array_check = array_1d_has_value(t->entries, i);
-			if(array_check){
-				if (t->key_cmp_func(entry->key, key) == 0) {
-					// If we have a match, call free on the key
-					// and/or value if given the responsiblity
-					if (t->key_free_func != NULL) {
-						t->key_free_func(entry->key);
-					}
-					if (t->value_free_func != NULL) {
-						t->value_free_func(entry->value);
-					}
-				}
-			} else {
-				printf("NO MATCH\n");
+
+		if (t->key_cmp_func(entry->key, key) == 0) {
+			// If we have a match, call free on the key
+			// and/or value if given the responsiblity
+			if (t->key_free_func != NULL) {
+				t->key_free_func(entry->key);
 			}
-		i++;
+			if (t->value_free_func != NULL) {
+				t->value_free_func(entry->value);
+			}
+
+			if(t->size != 1) {
+				//take the last one put in the empty slot
+				struct table_entry *temp = malloc(sizeof(struct table_entry));
+				struct table_entry *last = array_1d_inspect_value(t->entries, t->size);
+
+				memcpy(temp, last, sizeof(struct table_entry));
+
+				// void *tmpKey = last->key;
+				// void *tmpValue = last->value;
+				//
+				// temp->key = tmpKey;
+				// temp->value = tmpValue;
+
+				array_1d_set_value(t->entries, temp, i);
+
+				if (t->key_free_func != NULL) {
+					t->key_free_func(last->key);
+				}
+				if (t->value_free_func != NULL) {
+					t->value_free_func(last->value);
+				}
+			}
+			break;
+		}
 	}
+
+	t->size--;
+	return NULL;
 }
 
 
