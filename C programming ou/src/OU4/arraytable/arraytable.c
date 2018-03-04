@@ -195,18 +195,28 @@ void table_remove(table *t, const void *key)
 				t->value_free_func(entry->value);
 			}
 
-			if(t->size != 1) {
-				//take the last one put in the empty slot
+			t->size--;
+
+			if(!(i == t->size + 1)) {
+
 				struct table_entry *temp = malloc(sizeof(struct table_entry));
-				struct table_entry *last = array_1d_inspect_value(t->entries, t->size);
+				struct table_entry *last = array_1d_inspect_value(t->entries, t->size + 1);
 
-				//memcpy(temp, last, sizeof(struct table_entry));
+				int num_chars1, num_chars2;
+				char *copyKey;
+				char *copyValue;
 
-				char tmpKey = *(char*)last->key;
-				char tmpValue = *(char*)last->value; //Pointer to a void*
+				num_chars1 = strlen((char*)last->key);
+				num_chars2 = strlen((char*)last->value);
 
-				temp->key = &tmpKey;
-				temp->value = &tmpValue;
+				copyKey = (char*)malloc(sizeof(char) * num_chars1);
+				copyValue = (char*)malloc(sizeof(char) * num_chars2);
+
+				strcpy(copyKey, (char*)last->key);
+				strcpy(copyValue, (char*)last->value);
+
+				temp->key = copyKey;
+				temp->value = copyValue;
 
 				array_1d_set_value(t->entries, temp, i);
 
@@ -217,11 +227,10 @@ void table_remove(table *t, const void *key)
 					t->value_free_func(last->value);
 				}
 			}
+
 			break;
 		}
 	}
-
-	t->size--;
 	return NULL;
 }
 
