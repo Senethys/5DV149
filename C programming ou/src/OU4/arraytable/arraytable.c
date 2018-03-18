@@ -38,7 +38,7 @@ struct table_entry {
 };
 
 #define LOW 1
-#define HIGH 1000
+#define HIGH 40000
 #define TABLESIZE HIGH - LOW
 
 // ===========INTERNAL FUNCTION IMPLEMENTATIONS============
@@ -83,19 +83,6 @@ bool table_is_empty(const table *t)
 	else {
 		return false;
 	}
-
-
-	// bool flag = true;
-	// for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-	// 	bool has_val = array_1d_has_value(t->entries, i);
-	// 	if(has_val) {
-	// 		flag = false;
-	// 		break;
-	// 	}
-	// }
-	// return flag;
-
-
 }
 
 /**
@@ -124,12 +111,11 @@ void table_insert(table *t, void *key, void *value)
 		t->size++;
 
 	} else {
+
 		for (int i=array_1d_low(t->entries); i <= t->size; i++) {
 			struct table_entry *temp = array_1d_inspect_value(t->entries, i);
-
 		 	if(t->key_cmp_func(temp->key, key) == 0) {
-				t->key_free_func(temp->key);
-				t->value_free_func(temp->value);
+				array_1d_set_value(t->entries, NULL, i);
 				array_1d_set_value(t->entries, entry, i);
 				duplicateFound = true;
 				break;
@@ -137,7 +123,7 @@ void table_insert(table *t, void *key, void *value)
 		}
 
 		if(!duplicateFound) {
-			array_1d_set_value(t->entries, entry, (t->size)+1);
+			array_1d_set_value(t->entries, entry, t->size+1);
 			t->size++;
 		}
 	}
@@ -157,8 +143,7 @@ void *table_lookup(const table *t, const void *key)
 	int i=array_1d_low(t->entries);
 	//Iterate over the list. Return first match.
 	while (i <= t->size) {
-		struct table_entry *entry = malloc(sizeof(struct table_entry));
-		entry = array_1d_inspect_value(t->entries, i);
+		struct table_entry *entry = array_1d_inspect_value(t->entries, i);
 		if (t->key_cmp_func(entry->key, key) == 0) {
 			return entry->value;
 		}
@@ -188,44 +173,29 @@ void table_remove(table *t, const void *key)
 		if (t->key_cmp_func(entry->key, key) == 0) {
 			// If we have a match, call free on the key
 			// and/or value if given the responsiblity
-			if (t->key_free_func != NULL) {
-				t->key_free_func(entry->key);
-			}
-			if (t->value_free_func != NULL) {
-				t->value_free_func(entry->value);
-			}
+
+			array_1d_set_value(t->entries, NULL, i);
 
 			t->size--;
 
+			//Om elemented som inte togs bort var det sista:
 			if(!(i == t->size + 1)) {
 
 				struct table_entry *temp = malloc(sizeof(struct table_entry));
+
+				//Hämta den sista key value pair.
 				struct table_entry *last = array_1d_inspect_value(t->entries, t->size + 1);
 
-				int num_chars1, num_chars2;
-				char *copyKey;
-				char *copyValue;
+				//Flytta över värden.
+				temp->key = last->key;
+				temp->value = last->value;
 
-				num_chars1 = strlen((char*)last->key);
-				num_chars2 = strlen((char*)last->value);
-
-				copyKey = (char*)malloc(sizeof(char) * num_chars1);
-				copyValue = (char*)malloc(sizeof(char) * num_chars2);
-
-				strcpy(copyKey, (char*)last->key);
-				strcpy(copyValue, (char*)last->value);
-
-				temp->key = copyKey;
-				temp->value = copyValue;
-
+				//Sätt in det sista elementet där senaste elementet togs bort.
 				array_1d_set_value(t->entries, temp, i);
 
-				if (t->key_free_func != NULL) {
-					t->key_free_func(last->key);
-				}
-				if (t->value_free_func != NULL) {
-					t->value_free_func(last->value);
-				}
+				//städa upp sista platsen i elementet.
+				array_1d_set_value(t->entries, NULL, t->size + 1);
+
 			}
 
 			break;
