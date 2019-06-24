@@ -199,9 +199,13 @@
   	stack *s=stack_empty(NULL);
   	int *v = malloc(sizeof(*v));
   	*v = 1;
-		stack_push(v);
+    int *v1 = malloc(sizeof(*v));
+    *v1 = 2;
+		stack_push(s, v);
 		stack_print(s, print_ints);
-		stack_push(stack_top(s), stack_pop(s));
+    stack_push(s, v1);
+    stack_print(s, print_ints);
+		stack *b = stack_push(stack_pop(s), stack_top(s));
   	stack_print(s, print_ints);
 
    //Alerts if the stack turns out to be empty or
@@ -209,11 +213,26 @@
   	if (stack_is_empty(s)) {
   		fprintf(stderr, "FAIL: Stack is empty after push\n");
   		stack_kill(s);
+      stack_kill(b);
+
   		exit(EXIT_FAILURE);
-  	}
+
+  	} else if(stack_top(s) != v1) {
+      fprintf(stderr, "FAIL: Stack top value is not the same after pop-top\n");
+      stack_kill(s);
+      stack_kill(b);
+      exit(EXIT_FAILURE);
+
+    } else if(b != s) {
+      fprintf(stderr, "FAIL: Stack before pop-top is not the same as previously.\n");
+      stack_kill(s);
+      stack_kill(b);
+      exit(EXIT_FAILURE);
+    }
 
   	free_all_types(s);
   	stack_kill(s);
+    stack_kill(b);
   	printf("PASSED.\n\n");
   }
 
