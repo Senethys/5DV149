@@ -51,18 +51,19 @@ static int compare_ints(const void *k1, const void *k2)
 int main(void)
 {
 	// Keep track of the key-value pairs we allocate.
-	//int *key[6];
-	//char *value[6];
+	int *key[6];
+	char *value[6];
 
 	table *t = table_empty(compare_ints, NULL, NULL);
 
-	table_print(t);
+	key[0] = malloc(sizeof(int));
+	*key[0] = 90187;
+	value[0] = make_string_copy("Umea");
+	table_insert(t, key[0], value[0]);
 
-	// key[0] = malloc(sizeof(int));
-	// *key[0] = 90187;
-	// value[0] = make_string_copy("Umea");
-	// table_insert(t, key[0], value[0]);
-	//
+	//WARNING PRINTS ALL 80000
+	table_print(t, print_int_string_pair);
+
 	// key[1] = malloc(sizeof(int));
 	// *key[1] = 90184;
 	// value[1] = make_string_copy("Kumea");

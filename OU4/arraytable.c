@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-#include "table.h"
 #include "array_1d.h"
+#include "table.h"
 
 /*
  * Implementation of a generic table for the "Datastructures and
@@ -30,7 +29,7 @@ struct table {
 	free_function value_free_func;
 	int low;
 	int high;
-	int amout;
+	int amount;
 };
 
 struct table_entry {
@@ -38,17 +37,28 @@ struct table_entry {
 	void *value;
 };
 
-
-
-int hashFunction(*void key)
+// Interpret the supplied key and value pointers and print their content.
+static void print_int_string_pair(const void *key, const void *value)
 {
-	int seed = 1337;
-	int hash = 0;
+	const int *k=key;
+	const char *s=value;
+	printf("[%d, %s]\n", *k, s);
+}
 
-
-
-
-
+/* jenkins hash, copied from http://en.wikipedia.org/wiki/Jenkins_hash_function */
+int hash(char *key, size_t len)
+{
+  int hash, i;
+  for(hash = i = 0; i < len; ++i)
+  {
+    hash += key[i];
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+  return hash;
 }
 
 
@@ -75,7 +85,7 @@ table *table_empty(compare_function *key_cmp_func,
 	table *t = calloc(1, sizeof(table));
 
 	t->low = 1;
-	t->high = 80000;
+	t->high = 80;
 	t->amount = 0;
 
 	// Create the list to hold the table_entry-ies.
@@ -96,9 +106,11 @@ table *table_empty(compare_function *key_cmp_func,
  */
 bool table_is_empty(const table *t)
 {
-	boolean result = false;
+	bool result;
 	if (t->amount == 0) {
 			result = false;
+	} else {
+		result = true;
 	}
 	return result;
 
@@ -126,7 +138,11 @@ void table_insert(table *t, void *key, void *value)
 	// cause table_lookup() to find the latest added value.
 	entry->key = key;
 	entry->value = value;
-	array_1d_set_value(t->entries, entry, POSITION);
+
+	int position = hash(entry->key, t->high);
+	printf("position: %d\n\n", position);
+	array_1d_set_value(t->entries, entry, position);
+}
 
 
 
@@ -271,25 +287,18 @@ void table_insert(table *t, void *key, void *value)
 // 	free(t);
 // }
 //
-// /**
-//  * table_print() - Print the given table.
-//  * @t: Table to print.
-//  * @print_func: Function called for each key/value pair in the table.
-//  *
-//  * Iterates over the key/value pairs in the table and prints them.
-//  * Will print all stored elements, including duplicates.
-//  *
-//  * Returns: Nothing.
-//  */
-// void table_print(const table *t, inspect_callback_pair print_func)
-// {
-// 	// Iterate over all elements. Call print_func on keys/values.
-// 	dlist_pos pos = dlist_first(t->entries);
-//
-// 	while (!dlist_is_end(t->entries, pos)) {
-// 		struct table_entry *e = dlist_inspect(t->entries, pos);
-// 		// Call print_func
-// 		print_func(e->key, e->value);
-// 		pos = dlist_next(t->entries, pos);
-// 	}
-// }
+/**
+ * table_print() - Print the given table.
+ * @t: Table to print.
+ * @print_func: Function called for each key/value pair in the table.
+ *
+ * Iterates over the key/value pairs in the table and prints them.
+ * Will print all stored elements, including duplicates.
+ *
+ * Returns: Nothing.
+ */
+void table_print(const table *t, inspect_callback_pair print_func)
+{
+	// Iterate over all elements. Call print_func on keys/values.
+	array_1d_print(t->entries, *print_int_string_pair);
+}
