@@ -27,41 +27,12 @@ struct table {
 	compare_function *key_cmp_func;
 	free_function key_free_func;
 	free_function value_free_func;
-	int low;
-	int high;
-	int amount;
 };
 
 struct table_entry {
 	void *key;
 	void *value;
 };
-
-// Interpret the supplied key and value pointers and print their content.
-static void print_int_string_pair(const void *key, const void *value)
-{
-	const int *k=key;
-	const char *s=value;
-	printf("[%d, %s]\n", *k, s);
-}
-
-/* jenkins hash, copied from http://en.wikipedia.org/wiki/Jenkins_hash_function */
-int hash(char *key, size_t len)
-{
-  int hash, i;
-  for(hash = i = 0; i < len; ++i)
-  {
-    hash += key[i];
-    hash += (hash << 10);
-    hash ^= (hash >> 6);
-  }
-  hash += (hash << 3);
-  hash ^= (hash >> 11);
-  hash += (hash << 15);
-  return hash;
-}
-
-
 
 
 
@@ -84,12 +55,8 @@ table *table_empty(compare_function *key_cmp_func,
 	// Allocate the table header.
 	table *t = calloc(1, sizeof(table));
 
-	t->low = 1;
-	t->high = 80;
-	t->amount = 0;
-
 	// Create the list to hold the table_entry-ies.
-	t->entries = array_1d_create(t->low, t->high, free);
+	t->entries = array_1d_create(1, 10, free);
 	// Store the key compare function and key/value free functions.
 	t->key_cmp_func = key_cmp_func;
 	t->key_free_func = key_free_func;
@@ -106,14 +73,7 @@ table *table_empty(compare_function *key_cmp_func,
  */
 bool table_is_empty(const table *t)
 {
-	bool result;
-	if (t->amount == 0) {
-			result = false;
-	} else {
-		result = true;
-	}
-	return result;
-
+	return false;
 }
 
 /**
@@ -138,28 +98,42 @@ void table_insert(table *t, void *key, void *value)
 	// cause table_lookup() to find the latest added value.
 	entry->key = key;
 	entry->value = value;
+	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+		char test = array_1d_inspect_value(t->entries, i);
+		printf("Inspected Value dereferenced: %c\n", test);
 
-	int position = hash(entry->key, t->high);
-	printf("position: %d\n\n", position);
-	array_1d_set_value(t->entries, entry, position);
+
+		if(!(array_1d_has_value(t->entries, i))) {
+			array_1d_set_value(t->entries, entry, i);
+			break;
+	} else {
+		//void test = array_1d_inspect_value(t->entries, i);
+		// printf("Inspected Value not dereferenced: %s\n", test);
+		// printf("Inspected Value dereferenced: %s\n", *test);
+	}
+	// 	} else if((int*)array_1d_inspect_value(t->entries, i) == (int*)*key);
+	// 	int *val1 = array_1d_inspect_value(t->entries, i);
+	// 	printf("Compared ints: %d, %d", *val1, *key);
+	// }
+	}
 }
 
 
 
-// /**
-//  * table_lookup() - Look up a given key in a table.
-//  * @table: Table to inspect.
-//  * @key: Key to look up.
-//  *
-//  * Returns: The value corresponding to a given key, or NULL if the key
-//  * is not found in the table. If the table contains duplicate keys,
-//  * the value that was latest inserted will be returned.
-//  */
+/**
+ * table_lookup() - Look up a given key in a table.
+ * @table: Table to inspect.
+ * @key: Key to look up.
+ *
+ * Returns: The value corresponding to a given key, or NULL if the key
+ * is not found in the table. If the table contains duplicate keys,
+ * the value that was latest inserted will be returned.
+ */
 // void *table_lookup(const table *t, const void *key)
 // {
 // 	// Iterate over the list. Return first match.
 //
-// 	dlist_pos pos = dlist_first(t->entries);
+// 	int pos = dlist_first(t->entries);
 //
 // 	while (!dlist_is_end(t->entries, pos)) {
 // 		// Inspect the table entry
@@ -300,5 +274,5 @@ void table_insert(table *t, void *key, void *value)
 void table_print(const table *t, inspect_callback_pair print_func)
 {
 	// Iterate over all elements. Call print_func on keys/values.
-	array_1d_print(t->entries, *print_int_string_pair);
+	array_1d_print(t->entries, print_func);
 }

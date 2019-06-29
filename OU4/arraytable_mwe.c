@@ -32,7 +32,7 @@ static void print_int_string_pair(const void *key, const void *value)
 {
 	const int *k=key;
 	const char *s=value;
-	printf("[%d, %s]\n", *k, s);
+	printf("%d, %s", *k, s);
 }
 
 // Compare two keys (int *).
@@ -61,21 +61,21 @@ int main(void)
 	value[0] = make_string_copy("Umea");
 	table_insert(t, key[0], value[0]);
 
-	//WARNING PRINTS ALL 80000
+	printf("Table after inserting 1 pair: \n\n");
 	table_print(t, print_int_string_pair);
 
-	// key[1] = malloc(sizeof(int));
-	// *key[1] = 90184;
-	// value[1] = make_string_copy("Kumea");
-	// table_insert(t, key[1], value[1]);
-	//
-	// key[2] = malloc(sizeof(int));
-	// *key[2] = 98185;
-	// value[2] = make_string_copy("Kiruna");
-	// table_insert(t, key[2], value[2]);
-	//
-	// printf("Table after inserting 3 pairs: \n\n");
-	// table_print(t, print_int_string_pair);
+	key[1] = malloc(sizeof(int));
+	*key[1] = 90184;
+	value[1] = make_string_copy("Kumea");
+	table_insert(t, key[1], value[1]);
+
+	key[2] = malloc(sizeof(int));
+	*key[2] = 98185;
+	value[2] = make_string_copy("Kiruna");
+	table_insert(t, key[2], value[2]);
+
+	printf("Table after inserting 3 pairs: \n\n");
+	table_print(t, print_int_string_pair);
 	//
 	//
 	// int c=90187;
