@@ -23,7 +23,7 @@
  *                 Now completely destroys and rebuilds table between timed
  *                 tests to reduce cache effects.
  * 2018-04-12 v1.6 Niclas Borlin <niclas@cs.umu.se>.
- *                 Modified program to accept two parameters; number of 
+ *                 Modified program to accept two parameters; number of
  *                 elements and number of lookups.
  * 2018-05-02 v1.7 Niclas Borlin <niclas@cs.umu.se>.
  *                 Bugfix in get_skewed_lookup_speed.
@@ -167,7 +167,7 @@ int string_compare(const void *ip1,const void *ip2)
 
 /* Shuffles the numbers stored in seq
  *    seq - an array of randomnumbers to be shuffled
- *    n - the number of elements in seq to shuffle, i.e the indexes [0, n] 
+ *    n - the number of elements in seq to shuffle, i.e the indexes [0, n]
  *        will be shuffled. However, seq might be larger than n...
  */
 void random_shuffle(int seq[], int n)
@@ -219,7 +219,7 @@ void get_insert_speed(table *t, int *keys, int *values, int n)
 {
         unsigned long start;
         unsigned long end;
-    
+
         // Insert all items
         printf("Insert %5d items                   : ", n);
         start = get_milliseconds();
@@ -453,7 +453,7 @@ void test_insert_lookup_different_keys()
         test_lookup_existing_key(t, "key1", "value1");
         test_lookup_existing_key(t, "key2", "value2");
         test_lookup_existing_key(t, "key3", "value3");
-    
+
         printf("Looking up three existing keys-value pairs in a table "
                "with three elements - OK\n");
         table_kill(t);
@@ -551,7 +551,7 @@ void test_remove_elements_different_keys()
         table_insert(t, key1, value1);
         table_insert(t, key2, value2);
         table_insert(t, key3, value3);
-        
+
         table_remove(t, key1);
         if (table_is_empty(t)){
                 printf("Should be two elements left in the table but it says "
@@ -644,7 +644,7 @@ void test_remove_elements_same_keys()
                        "result in an empty table.\n");
                 exit(EXIT_FAILURE);
         }
-    
+
         printf("Inserting three elements with the same key and removing "
                "the key, should end with empty table - OK\n");
         table_kill(t);
@@ -682,7 +682,7 @@ void speedTest(int n)
         table *t = table_empty(int_compare, free, free);
         get_insert_speed(t, keys, values, n);
         table_kill(t);
-        
+
         t = table_empty(int_compare, free, free);
         insert_values(t,keys,values,n);
         get_remove_speed(t, keys, n);

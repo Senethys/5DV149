@@ -25,7 +25,7 @@ struct array_1d {
 	int high; // High index limit.
 	int array_size; // Number of array elements.
 	void **values; // Pointer to where the actual values are stored.
-	free_function free_func; 
+	free_function free_func;
 };
 
 // ===========INTERNAL FUNCTION IMPLEMENTATIONS============
@@ -39,7 +39,7 @@ struct array_1d {
  *
  * The index limits are inclusive, i.e. all indices i such that low <=
  * i <= high are defined.
- * 
+ *
  * Returns: A pointer to the new array, or NULL if not enough memory
  * was available.
  */
@@ -56,9 +56,9 @@ array_1d *array_1d_create(int lo, int hi, free_function free_func)
 
 	// Store free function.
 	a->free_func=free_func;
-	
+
 	a->values=calloc(a->array_size, sizeof(void *));
-	
+
 	// Check whether the allocation succeeded.
 	if (a->values == NULL) {
 		free(a);
@@ -123,7 +123,7 @@ bool array_1d_has_value(const array_1d *a, int i)
  * @a: array to modify.
  * @v: value to set element to, or NULL to clear value.
  * @i: index of position to modify.
- * 
+ *
  * If the old element value is non-NULL, calls free_func if it was
  * specified at array creation.
  *
@@ -143,7 +143,7 @@ void array_1d_set_value(array_1d *a, void *v, int i)
 /**
  * array_1d_kill() - Return memory allocated by array.
  * @a: array to kill.
- * 
+ *
  * Iterates over all elements. If free_func was specified at array
  * creation, calls it for every non-NULL element value.
  *

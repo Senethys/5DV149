@@ -32,7 +32,7 @@ static void print_int_string_pair(const void *key, const void *value)
 {
 	//const int *k=key;
 	const char *s=value;
-	printf("%d, %s", 	key, s);
+	printf("%d, %s", 	*(int*)key, s);
 }
 
 // Compare two keys (int *).
@@ -55,7 +55,7 @@ int main(void)
 	char *value[6];
 	printf("Creating table:\n");
 	table *t = table_empty(compare_ints, NULL, NULL);
-	printf("Table is empty: %d\n\n", table_is_empty(t));
+	printf("Is table empty? %d\n\n", table_is_empty(t));
 //	table_choose_key(t); Crashes the program
 
 	key[0] = malloc(sizeof(int));
@@ -66,35 +66,42 @@ int main(void)
 	printf("Table after inserting 1 pair: \n");
 	table_print(t, print_int_string_pair);
 	printf("Is table empty? %d\n\n", table_is_empty(t));
-
-
-	printf("Inserting 3 more pairs... \n");
-
-	key[1] = malloc(sizeof(int));
-	*key[1] = 90184;
-	value[1] = make_string_copy("Kumea");
-	table_insert(t, key[1], value[1]);
-
-	key[2] = malloc(sizeof(int));
-	*key[2] = 98185;
-	value[2] = make_string_copy("Kiruna");
-	table_insert(t, key[2], value[2]);
-
-	key[4] = malloc(sizeof(int));
-	*key[4] = 98186;
-	value[4] = make_string_copy("Kiruna2");
-	table_insert(t, key[4], value[4]);
-
-	printf("Table after inserting 3 more pairs: \n\n");
+	printf("Lookup of a non existent key:\n");
+	char *return_value = (char *) table_lookup(t, key[1]);
+	printf("%s \n\n", return_value);
 	table_print(t, print_int_string_pair);
+	printf("Lookup of a existent key:\n");
+	char *return_value1 = (char *) table_lookup(t, key[0]);
+	printf("%s \n", return_value1);
 
 
-	int c=90187;
-	const char *s=table_lookup(t,&c);
-	printf("Lookup of postal code %d: %s.\n",c,s);
-	printf("Table_choose_key: ");
-	int *tlk = table_choose_key(t);
-	printf("%d: \n\n", *tlk );
+	// printf("Inserting 3 more pairs... \n");
+	//
+	// key[1] = malloc(sizeof(int));
+	// *key[1] = 90184;
+	// value[1] = make_string_copy("Kumea");
+	// table_insert(t, key[1], value[1]);
+	//
+	// key[2] = malloc(sizeof(int));
+	// *key[2] = 98185;
+	// value[2] = make_string_copy("Kiruna");
+	// table_insert(t, key[2], value[2]);
+	//
+	// key[4] = malloc(sizeof(int));
+	// *key[4] = 98186;
+	// value[4] = make_string_copy("Kiruna2");
+	// table_insert(t, key[4], value[4]);
+	//
+	// printf("Table after inserting 3 more pairs: \n\n");
+	// table_print(t, print_int_string_pair);
+	//
+	//
+	// int c=90187;
+	// const char *s=table_lookup(t,&c);
+	// printf("Lookup of postal code %d: %s.\n",c,s);
+	// printf("Table_choose_key: ");
+	// int *tlk = table_choose_key(t);
+	// printf("%d: \n\n", *tlk );
 
 	//
 	// printf("Adding a postal code %d: %s.\n\n",80317,"Gävle");
@@ -142,12 +149,12 @@ int main(void)
 	// printf("Lookup of postal code %d: %s.\n",a,s);
 	//
 	//
-	table_print(t, print_int_string_pair);
-	printf("Removing...:\n");
-	int test = 90187;
-	table_remove(t, &test);
-	printf("Table after remove of Umea (dubplicate):\n\n");
-	table_print(t, print_int_string_pair);
+	// table_print(t, print_int_string_pair);
+	// printf("Removing...:\n");
+	// int test = 90187;
+	// table_remove(t, &test);
+	// printf("Table after remove of Umea (dubplicate):\n\n");
+	// table_print(t, print_int_string_pair);
 	//
 	// table_print(t, print_int_string_pair);
   //       // Kill table.
