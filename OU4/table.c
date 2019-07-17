@@ -178,14 +178,14 @@ void table_remove(table *t, const void *key)
 			// If we have a match, call free on the key
 			// and/or value if given the responsiblity
 			if (t->key_free_func != NULL) {
-                                if (entry->key == key) {
-                                        // The given key points to the same
-                                        // memory as entry->key. Freeing here
-                                        // would trigger a memory error in the
-                                        // next iteration. Instead, defer free
-                                        // of this pointer to the very end.
-                                        deferred_ptr = entry->key;
-                                } else {
+        if (entry->key == key) {
+                // The given key points to the same
+                // memory as entry->key. Freeing here
+                // would trigger a memory error in the
+                // next iteration. Instead, defer free
+                // of this pointer to the very end.
+                deferred_ptr = entry->key;
+        } else {
 				t->key_free_func(entry->key);
 			}
                         }

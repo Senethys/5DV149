@@ -38,6 +38,15 @@ static void print_int_string_pair(const void *key, const void *value)
 // Compare two keys (int *).
 static int compare_ints(const void *k1, const void *k2)
 {
+	printf("__________________Comparing__________________ \n\n");
+	printf("key1: %d\n", *(int *)k1);
+	printf("key1 Memory: %p\n", k1);
+
+	printf("key2: %d\n", *(int *)k2);
+	printf("key2 Memory: %p\n", k2);
+	if (k1 || k2 == NULL) {
+		return NULL;
+	}
 	int key1 = *(int *)k1;
 	int key2 = *(int *)k2;
 
@@ -62,6 +71,10 @@ int main(void)
 	*key[0] = 90187;
 	value[0] = make_string_copy("Umea");
 	table_insert(t, key[0], value[0]);
+
+	key[1] = malloc(sizeof(int));
+	*key[1] = 88888;
+	value[1] = make_string_copy("KUmea");
 
 	printf("Table after inserting 1 pair: \n");
 	table_print(t, print_int_string_pair);

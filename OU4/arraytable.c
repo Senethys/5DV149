@@ -56,7 +56,7 @@ table *table_empty(compare_function *key_cmp_func,
 	table *t = calloc(1, sizeof(table));
 
 	// Create the list to hold the table_entry-ies.
-	t->entries = array_1d_create(1, 3, free);
+	t->entries = array_1d_create(1, 40000, free);
 	// Store the key compare function and key/value free functions.
 	t->key_cmp_func = key_cmp_func;
 	t->key_free_func = key_free_func;
@@ -92,32 +92,25 @@ bool table_is_empty(const table *t)
 void table_insert(table *t, void *key, void *value)
 {
 	// Allocate the key/value structure.
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
-	//struct table_entry *retrieved_entry;
+	struct table_entry *retrieved_entry;
 	// Set the pointers and insert first in the list. This will
 	// cause table_lookup() to find the latest added value.
 	entry->key = key;
 	entry->value = value;
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		if(!(array_1d_has_value(t->entries, i))) {
-			printf("Table inserts into index: %d\n", i);
 			array_1d_set_value(t->entries, entry, i);
 			break;
+		} else if(array_1d_has_value(t->entries, i)) {
+				retrieved_entry = array_1d_inspect_value(t->entries, i);
+				if (t->key_cmp_func(entry->key, retrieved_entry->key) == 0) {
+					array_1d_set_value(t->entries, entry, i);
+					return;
+				}
 			}
 		}
-		//else {
-			// retrieved_entry = array_1d_inspect_value(t->entries, i);
-			// //char *city_name = retrieved_entry->value;
-			// int *city_postal = retrieved_entry->key;
-			// //if(*city_postal == *(int*)entry->key) {
-			// if (t->key_cmp_func(entry->key, retrieved_entry->key) == 0) {
-			// 	printf("Same key found!\n");
-			// 	printf("Key Exists: %d\n", *city_postal);
-			// 	printf("Key Used: %d\n", *(int*)entry->key);
-			// 	array_1d_set_value(t->entries, entry, i);
-			// 	}
-			// }		}
-
 }
 
 
@@ -132,23 +125,23 @@ void table_insert(table *t, void *key, void *value)
  */
 void *table_lookup(const table *t, const void *key)
 {
-	// Iterate over the list. Return first match.
-for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
-		// Inspect the table entry
-		if(array_1d_has_value(t->entries, i)) {
-			printf("Has value at index %d : %d\n", i, array_1d_has_value(t->entries, i));
-			struct table_entry *entry = array_1d_inspect_value(t->entries, i);
-			// Check if the entry key matches the search key.
-			if (t->key_cmp_func(entry->key, key) == 0) {
-				// If yes, return the corresponding value pointer.
-				return entry->value;
-			} else {
-				continue;
+	int keyChecked  = *(int*)key;
+	if(key != NULL || keyChecked != 0) {
+		// Iterate over the list. Return first match.
+	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+			// Inspect the table entry
+			if(array_1d_has_value(t->entries, i)) {
+				struct table_entry *entry = array_1d_inspect_value(t->entries, i);
+				// Check if the entry key matches the search key.
+				if (t->key_cmp_func(entry->key, key) == 0) {
+					// If yes, return the corresponding value pointer.
+					return entry->value;
+				}
 			}
 		}
-	}
 		// No match found. Return NULL.
-	return NULL;
+		return NULL;
+	}
 }
 
 
@@ -186,24 +179,23 @@ void *table_choose_key(const table *t)
  */
 void table_remove(table *t, const void *key)
 {
-	bool end_reached = false;
-	bool entry_removed = false;
+	int removedPosk;
 	int pos = array_1d_low(t->entries);
-	while(!end_reached) {
-		struct table_entry *entry = array_1d_inspect_value(t->entries, pos);
-		// Check if the entry key matches the search key.
-		if (t->key_cmp_func(entry->key, key) == 0) {
-			free(entry->key);
-			free(entry->value);
-			free(entry);
-			entry_removed = true;
-		} else if(!array_1d_has_value(t->entries, pos + 1) && entry_removed) {
-			end_reached = true;
-			struct table_entry *last_entry = array_1d_inspect_value(t->entries, pos);
-			array_1d_set_value(t->entries, last_entry, pos);
-			array_1d_set_value(t->entries, NULL, pos);
+	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
+		if(array_1d_has_value(t->entries, pos)) {
+			struct table_entry *entry = array_1d_inspect_value(t->entries, pos);
+			if (t->key_cmp_func(entry->key, key) == 0) {
+				free(entry->key);
+				free(entry->value);
+				free(entry);
+				removedPos = pos;
+				return;
+			} else if(!array_1d_has_value(t->entries, pos + 1)) {
+				struct table_entry *last_entry = array_1d_inspect_value(t->entries, pos);
+				array_1d_set_value(t->entries, last_entry, removedPos);
+				array_1d_set_value(t->entries, NULL, pos);
+			}
 		}
-	pos++;
 	}
 }
 
