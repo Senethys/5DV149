@@ -32,12 +32,21 @@ static void print_int_string_pair(const void *key, const void *value)
 {
 	//const int *k=key;
 	const char *s=value;
-	printf("%d, %s", 	key, s);
+	printf("%d, %s", 	*(int*)key, s);
 }
 
 // Compare two keys (int *).
 static int compare_ints(const void *k1, const void *k2)
 {
+	printf("__________________Comparing__________________ \n\n");
+	printf("key1: %d\n", *(int *)k1);
+	printf("key1 Memory: %p\n", k1);
+
+	printf("key2: %d\n", *(int *)k2);
+	printf("key2 Memory: %p\n", k2);
+	if (k1 || k2 == NULL) {
+		return NULL;
+	}
 	int key1 = *(int *)k1;
 	int key2 = *(int *)k2;
 
@@ -55,13 +64,14 @@ int main(void)
 
 	char *key1 = copy_string("key1");
 	char *value1 = copy_string("value1");
-	table_print(t,print_int_string_pair);
+	printf("\n");
+	table_print(t, table_print);
 	printf("\n");
 	table_insert(t, key1, value1);
-	table_print(t,print_int_string_pair);
+	table_print(t, table_print);
 	printf("\n");
 	table_remove(t, key1);
-	table_print(t,print_int_string_pair);
+	table_print(t, table_print);
 	printf("\n");
 	if (!table_is_empty(t)){
 					printf("Removing the last element from a table does not "
@@ -71,4 +81,5 @@ int main(void)
 	printf("Inserting one element and removing it, checking that the "
 				 "table gets empty - OK\n");
 	table_kill(t);
+	return 0;
 }
