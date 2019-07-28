@@ -92,7 +92,6 @@ bool table_is_empty(const table *t)
 void table_insert(table *t, void *key, void *value)
 {
 	// Allocate the key/value structure.
-	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	struct table_entry *entry = malloc(sizeof(struct table_entry));
 	struct table_entry *retrieved_entry;
 	// Set the pointers and insert first in the list. This will
@@ -107,7 +106,7 @@ void table_insert(table *t, void *key, void *value)
 				retrieved_entry = array_1d_inspect_value(t->entries, i);
 				if (t->key_cmp_func(entry->key, retrieved_entry->key) == 0) {
 					array_1d_set_value(t->entries, entry, i);
-					return;
+					break;
 				}
 			}
 		}
@@ -137,6 +136,8 @@ void *table_lookup(const table *t, const void *key)
 					// If yes, return the corresponding value pointer.
 					return entry->value;
 				}
+			} else {
+				return NULL;
 			}
 		}
 		// No match found. Return NULL.
@@ -179,25 +180,42 @@ void *table_choose_key(const table *t)
  */
 void table_remove(table *t, const void *key)
 {
-	int removedPosk;
+	//Get start position
 	int pos = array_1d_low(t->entries);
+
+	//Iterate over the table until a key is matched.
 	for (int i=array_1d_low(t->entries); i<=array_1d_high(t->entries); i++) {
 		if(array_1d_has_value(t->entries, pos)) {
 			struct table_entry *entry = array_1d_inspect_value(t->entries, pos);
 			if (t->key_cmp_func(entry->key, key) == 0) {
-				free(entry->key);
-				free(entry->value);
-				free(entry);
-				removedPos = pos;
-				return;
-			} else if(!array_1d_has_value(t->entries, pos + 1)) {
-				struct table_entry *last_entry = array_1d_inspect_value(t->entries, pos);
-				array_1d_set_value(t->entries, last_entry, removedPos);
-				array_1d_set_value(t->entries, NULL, pos);
+				//If this is NOT the last entry in the table, go to the last one.
+				if(array_1d_has_value(t->entries, pos + 1)) {
+					int current_pos = pos;
+					while(array_1d_has_value(t->entries, current_pos)) {
+						//Upon arrival to last entry, move the last entry to the removed one.
+						if(!(array_1d_has_value(t->entries, current_pos + 1))) {
+							struct table_entry *copied_entry = malloc(sizeof(struct table_entry));
+							struct table_entry *current_entry = array_1d_inspect_value(t->entries, current_pos);
+							copied_entry->key = int_ptr_from_int(current_entry->key);
+							copied_entry->value = copy_string(current_entry->value);
+							//Add a copy of the last entry to the removed entry positions'
+							//Need to free here
+							array_1d_set_value(t->entries, NULL, current_pos);
+							array_1d_set_value(t->entries, copied_entry, pos);
+							//Remove the last entry.
+							array_1d_set_value(t->entries, NULL, current_pos);
+							return;
+						}
+						current_pos++;
+					}
+				} else {
+					array_1d_set_value(t->entries, NULL, pos);
+				}
 			}
 		}
 	}
 }
+
 
 /*
  * table_kill() - Destroy a table.
