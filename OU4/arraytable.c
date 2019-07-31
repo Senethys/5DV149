@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "array_1d.h"
 #include "table.h"
 
@@ -140,9 +141,9 @@ void *table_lookup(const table *t, const void *key)
 				return NULL;
 			}
 		}
-		// No match found. Return NULL.
-		return NULL;
 	}
+	// No match found. Return NULL.
+	return NULL;
 }
 
 
@@ -180,11 +181,8 @@ void *table_choose_key(const table *t)
  */
 void table_remove(table *t, const void *key)
 {
-	//Get start position
-	int pos = array_1d_low(t->entries);
-
 	//Iterate over the table until a key is matched.
-	for (pos; pos<=array_1d_high(t->entries); pos++) {
+	for (int pos = array_1d_low(t->entries); pos<=array_1d_high(t->entries); pos++) {
 		if(array_1d_has_value(t->entries, pos)) {
 			struct table_entry *entry = array_1d_inspect_value(t->entries, pos);
 			if (t->key_cmp_func(entry->key, key) == 0) {
@@ -198,8 +196,8 @@ void table_remove(table *t, const void *key)
 							struct table_entry *current_entry = array_1d_inspect_value(t->entries, current_pos);
 							void *keyCopy = malloc(sizeof(current_entry->key));
 							void *valueCopy = malloc(sizeof(current_entry->value));
-							memcpy(keyCopy, current_entry->key, sizeof(current_entry->key));
-							memcpy(valueCopy, current_entry->value, sizeof(current_entry->value));
+							memcpy(keyCopy, current_entry->key, sizeof(*current_entry->key));
+							memcpy(valueCopy, current_entry->value, sizeof(*current_entry->value));
 							copied_entry->key = keyCopy;
 							copied_entry->value = valueCopy;
 							array_1d_set_value(t->entries, NULL, current_pos);
@@ -266,5 +264,5 @@ void table_kill(table *t)
 void table_print(const table *t, inspect_callback_pair print_func)
 {
 	//Iterate over all elements. Call print_func on keys/values.
-	array_1d_print(t->entries, print_func);
+	array_1d_print(t->entries, (inspect_callback)print_func);
 }
