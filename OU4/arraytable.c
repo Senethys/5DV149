@@ -181,6 +181,7 @@ void *table_choose_key(const table *t)
  */
 void table_remove(table *t, const void *key)
 {
+
 	//Iterate over the table until a key is matched.
 	for (int pos = array_1d_low(t->entries); pos<=array_1d_high(t->entries); pos++) {
 		if(array_1d_has_value(t->entries, pos)) {
@@ -194,10 +195,10 @@ void table_remove(table *t, const void *key)
 						if(!(array_1d_has_value(t->entries, current_pos + 1))) {
 							struct table_entry *copied_entry = malloc(sizeof(struct table_entry));
 							struct table_entry *current_entry = array_1d_inspect_value(t->entries, current_pos);
-							void *keyCopy = malloc(sizeof(current_entry->key));
-							void *valueCopy = malloc(sizeof(current_entry->value));
-							memcpy(keyCopy, current_entry->key, sizeof(*current_entry->key));
-							memcpy(valueCopy, current_entry->value, sizeof(*current_entry->value));
+							void *keyCopy = malloc(sizeof(*current_entry->key));
+							void *valueCopy = malloc(sizeof(*current_entry->value));
+							memcpy(keyCopy, current_entry->key, sizeof(copied_entry->key));
+							memcpy(valueCopy, current_entry->value, sizeof(copied_entry->value));
 							copied_entry->key = keyCopy;
 							copied_entry->value = valueCopy;
 							array_1d_set_value(t->entries, NULL, current_pos);
